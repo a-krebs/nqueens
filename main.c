@@ -138,10 +138,11 @@ bool rowInvalid(mapTile * map, int size, mapTile * startPt){
 }
 
 //Recursive function to calculate the # of possibilities
-int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, mapTile* invalidList, mapTile * endPt){
+int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, mapTile** invalidStack, mapTile * endPt){
 	int i;
 	int sum = 0;
 	mapTile* startPt = startPtr;
+	mapTile** stackTop = invalidStack;
 	if (startPt == endPt){
 		return 1;
 	}
@@ -158,11 +159,11 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 		//Place a queen
 
 		//*startPt = TILE_QUEEN;
-		computeInvalidSquaresBelow(startPt, size, start, invalidList);
+		computeInvalidSquaresBelow(startPt, size, start, invalidStack);
 		startPt += (size - i);
-		sum += computePossibilities(map, size, startPt, ((start / size) + 1) * size,  invalidList, endPt);
+		sum += computePossibilities(map, size, startPt, ((start / size) + 1) * size,  invalidStack, endPt);
 		startPt -= (size - i);
-		restoreInvalidSquares(startPt, invalidList, start);
+		restoreInvalidSquares(startPt, invalidStack, start);
 		//*startPt = TILE_BLANK;
 	}
 	startPt -= i;
@@ -173,21 +174,23 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 int main(int argc, char* argv[]){
 
 	char userinput;
-	mapTile* invalidList;
+	//mapTile* invalidList;
+	mapTile* invalidStack[];
 	int i;
 	float start, end;
 	mapTile * map, * startPt;
 	map = createMap();
 	startPt = map;
-	invalidList = (mapTile*) malloc(sizeof(mapTile) * MAPSIZE * MAPSIZE);
-	for(i = 0; i < MAPSIZE * MAPSIZE; i++){
-		invalidList[i] = 255;
-	}
+	invalidStack = calloc(MAPSIZE * MAPSIZE, sizeof(mapTile*))
+	//invalidList = (mapTile*) malloc(sizeof(mapTile) * MAPSIZE * MAPSIZE);
+	//for(i = 0; i < MAPSIZE * MAPSIZE; i++){
+	//	invalidList[i] = 255;
+	//}
 	start = clock();
-	printf("SUM: %d\n",computePossibilities(map, MAPSIZE, startPt, 0, invalidList, map + (MAPSIZE * MAPSIZE)));
+	printf("SUM: %d\n",computePossibilities(map, MAPSIZE, startPt, 0, invalidStack, map + (MAPSIZE * MAPSIZE)));
 	end = clock();
 	free(map);
-	free(invalidList);
+	free(invalidStack);
 	printf("TIME %fs \n", (end-start)/1000.0);
 	printf("Press enter to end program");
 	fflush(stdout);
