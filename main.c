@@ -13,9 +13,22 @@
 #define TILE_BAD 1
 #define TILE_QUEEN 2
 #define TILE_INVALID 3
-#define MAPSIZE 15
+#define MAPSIZE 4
 
+mapTile** entireStackHead;
 
+void drawState(mapTile* map, mapTile** invalidStack) {
+	int i = 0;
+	int j = 0;
+	char userinput;
+	for (i = 0; i < MAPSIZE; i++ ) {
+		for (j = 0; j < MAPSIZE; j++) {
+			printf("%d ", *(map + i + j));
+		}
+		printf("\n");
+	}
+	userinput = fgetc(stdin);
+}
 
 //Allocates memory space for map
 mapTile * createMap(){
@@ -32,13 +45,13 @@ mapTile * createMap(){
 }
 
 //Adds items to a list, increments count and returns size
-void addToList(mapTile* list, int value, int index){
-	*(list + index) = value;
-
+void addToList(mapTile*** invalidStack, mapTile* invalidCell){
+	**(invalidStack) = invalidCell;
+	*(invalidStack)++;
 }
 
 //returns # of invalidated squares
-void computeInvalidSquaresBelow(mapTile* startPt, int size, int start, mapTile* invalidList){
+void computeInvalidSquaresBelow(mapTile* startPt, int size, int start, mapTile** invalidStack){
 	int col = start % size;
 	int currCellNum, cellDelta;
 	mapTile * tmpPtr;
@@ -48,28 +61,34 @@ void computeInvalidSquaresBelow(mapTile* startPt, int size, int start, mapTile* 
 		//Move down the column and mark as invalid
 		if(*startPt == TILE_BLANK){
 			*startPt = TILE_INVALID;
-			//(invalidList + start + (cellDelta * size))= start;
-			addToList(invalidList, start, currCellNum);
+			addToList(&invalidStack, startPt);
 		} 
 		//Mark diagonals as invalid
 		if(col + cellDelta < size){
 			tmpPtr = startPt + cellDelta;
 			if(*tmpPtr == TILE_BLANK ){
 				*tmpPtr = TILE_INVALID;
-				addToList(invalidList, start, currCellNum + cellDelta);
+				addToList(&invalidStack, tmpPtr);
 			}
 		}
 		if(col - cellDelta >= 0){
 			tmpPtr = startPt - cellDelta;
 			if( *tmpPtr == TILE_BLANK){
 				*tmpPtr = TILE_INVALID;
-				addToList(invalidList, start, currCellNum - cellDelta);
+				addToList(&invalidStack, tmpPtr);
 			} 
 		}
 	}
 }
 
-//Restores invalidated squares to blank
+void popInvalidSquares(mapTile** stackTop, mapTile*** invalidStack){
+	while (*(invalidStack) > stackTop) {
+		*(invalidStack)--;
+		***(invalidStack) = TILE_BLANK;
+	}
+}
+
+// Restores invalidated squares to blank
 void restoreInvalidSquares(mapTile * startPt, mapTile* list, int start){
 	int size = MAPSIZE;
 	int col = start % size;
@@ -143,11 +162,14 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 	int sum = 0;
 	mapTile* startPt = startPtr;
 	mapTile** stackTop = invalidStack;
+	printf("computePossibilities: %d\n", start);
+	drawState(map, invalidStack);
 	if (startPt == endPt){
 		return 1;
 	}
 
 	if (rowInvalid(map, size, startPt) == true){
+		printf("invalid row found\n");
 		return 0;
 	}/**/
 
@@ -163,10 +185,12 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 		startPt += (size - i);
 		sum += computePossibilities(map, size, startPt, ((start / size) + 1) * size,  invalidStack, endPt);
 		startPt -= (size - i);
-		restoreInvalidSquares(startPt, invalidStack, start);
+		popInvalidSquares(stackTop, &invalidStack);
+		//restoreInvalidSquares(startPt, invalidStack, start);
 		//*startPt = TILE_BLANK;
 	}
 	startPt -= i;
+	printf("Returning from CP: %d\n", sum);
 	return sum;
 
 }
@@ -175,13 +199,13 @@ int main(int argc, char* argv[]){
 
 	char userinput;
 	//mapTile* invalidList;
-	mapTile* invalidStack[];
+	mapTile** invalidStack;
 	int i;
 	float start, end;
 	mapTile * map, * startPt;
 	map = createMap();
 	startPt = map;
-	invalidStack = calloc(MAPSIZE * MAPSIZE, sizeof(mapTile*))
+	invalidStack = calloc(MAPSIZE * MAPSIZE, sizeof(mapTile*));
 	//invalidList = (mapTile*) malloc(sizeof(mapTile) * MAPSIZE * MAPSIZE);
 	//for(i = 0; i < MAPSIZE * MAPSIZE; i++){
 	//	invalidList[i] = 255;
