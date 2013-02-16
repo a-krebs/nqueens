@@ -1,8 +1,8 @@
 // Euler.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-#include "EulerProblems.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #define bool int
 #define true 1
@@ -170,7 +170,7 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 
 }
 
-int _tmain(int argc, _TCHAR* argv[]){
+int main(int argc, char* argv[]){
 
 	char userinput;
 	mapTile* invalidList;
@@ -183,13 +183,6 @@ int _tmain(int argc, _TCHAR* argv[]){
 	for(i = 0; i < MAPSIZE * MAPSIZE; i++){
 		invalidList[i] = 255;
 	}
-	printf("Euler Prolem 1: %d\n",Euler1());
-	printf("Euler Prolem 2: %d\n",Euler2());
-	printf("Euler Prolem 3: %d\n",Euler3());
-	printf("Euler Prolem 4: %d\n",Euler4());
-	printf("Euler Prolem 5: %d\n",Euler5());
-	printf("Euler Prolem 6: %d\n",Euler6());
-	printf("Euler Prolem 7: %d\n",Euler7());
 	start = clock();
 	printf("SUM: %d\n",computePossibilities(map, MAPSIZE, startPt, 0, invalidList, map + (MAPSIZE * MAPSIZE)));
 	end = clock();
