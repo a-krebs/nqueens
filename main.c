@@ -13,7 +13,7 @@
 #define TILE_BAD 1
 #define TILE_QUEEN 2
 #define TILE_INVALID 3
-#define MAPSIZE 4
+#define MAPSIZE 15
 
 mapTile** entireStackHead;
 
@@ -170,15 +170,15 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 	int sum = 0;
 	mapTile* startPt = startPtr;
 	mapTile** stackTop = *(invalidStack);
-	printf("computePossibilities: %d\n", start);
-	drawState(map, stackTop);
+	//printf("computePossibilities: %d\n", start);
+	//drawState(map, stackTop);
 	if (startPt == endPt){
-		printf("End of map reached\n");
+		//printf("End of map reached\n");
 		return 1;
 	}
 
 	if (rowInvalid(map, size, startPt) == true){
-		printf("invalid row found\n");
+		//printf("invalid row found\n");
 		return 0;
 	}/**/
 
@@ -189,17 +189,17 @@ int computePossibilities(mapTile* map, int size, mapTile* startPtr,  int start, 
 		}
 		//Place a queen
 
-		*startPt = TILE_QUEEN;
+		//*startPt = TILE_QUEEN;
 		computeInvalidSquaresBelow(startPt, size, start, invalidStack);
 		startPt += (size - i);
 		sum += computePossibilities(map, size, startPt, ((start / size) + 1) * size,  invalidStack, endPt);
 		startPt -= (size - i);
 		popInvalidSquares(stackTop, invalidStack);
 		//restoreInvalidSquares(startPt, invalidStack, start);
-		*startPt = TILE_BLANK;
+		//*startPt = TILE_BLANK;
 	}
 	startPt -= i;
-	printf("Returning from CP: %d\n", start - i);
+	//printf("Returning from CP: %d\n", start - i);
 	return sum;
 
 }
